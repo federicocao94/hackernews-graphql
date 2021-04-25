@@ -3,6 +3,7 @@ package com.howtographql.hackernews;
 import com.coxautodev.graphql.tools.SchemaParser;
 import com.howtographql.hackernews.repositories.LinkRepository;
 import com.howtographql.hackernews.repositories.UserRepository;
+import com.howtographql.hackernews.resolvers.SigninResolver;
 import com.howtographql.hackernews.resolvers.mutations.Mutation;
 import com.howtographql.hackernews.resolvers.queries.Query;
 import com.mongodb.MongoClient;
@@ -34,8 +35,10 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
     private static GraphQLSchema buildSchema() {
         return  SchemaParser.newParser()
                 .file("schema.graphqls")
-                .resolvers(new Query(linkRepository),
-                        new Mutation(linkRepository, userRepository))
+                .resolvers(
+                        new Query(linkRepository),
+                        new Mutation(linkRepository, userRepository),
+                        new SigninResolver())
                 .build()
                 .makeExecutableSchema();
     }
