@@ -1,6 +1,7 @@
 package com.howtographql.hackernews.resolvers.mutations;
 
 import com.coxautodev.graphql.tools.GraphQLRootResolver;
+import com.howtographql.hackernews.AuthContext;
 import com.howtographql.hackernews.model.AuthData;
 import com.howtographql.hackernews.model.Link;
 import com.howtographql.hackernews.model.SigninPayload;
@@ -8,6 +9,7 @@ import com.howtographql.hackernews.model.User;
 import com.howtographql.hackernews.repositories.LinkRepository;
 import com.howtographql.hackernews.repositories.UserRepository;
 import graphql.GraphQLException;
+import graphql.schema.DataFetchingEnvironment;
 
 public class Mutation implements GraphQLRootResolver {
 
@@ -21,8 +23,10 @@ public class Mutation implements GraphQLRootResolver {
     }
 
 
-    public Link createLink(String url, String description) {
-        Link newLink = new Link(null, url, description);
+    public Link createLink(String url, String description, DataFetchingEnvironment env) {
+        AuthContext context = env.getContext();
+        Link newLink = new Link(null, url, description, context.getUser().getId());
+
         return linkRepository.saveLink(newLink);
     }
 
