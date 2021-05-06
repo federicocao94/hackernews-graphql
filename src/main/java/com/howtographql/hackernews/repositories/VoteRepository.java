@@ -45,9 +45,7 @@ public class VoteRepository {
         doc.append("createdAt", Scalars.dateTime.getCoercing().serialize(vote.getCreatedAt()));
 
         votes.insertOne(doc);
-        Vote savedVote = vote(doc);
-        return savedVote;
-//        return vote(doc);
+        return vote(doc);
     }
 
 
