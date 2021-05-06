@@ -2,14 +2,16 @@ package com.howtographql.hackernews.resolvers.mutations;
 
 import com.coxautodev.graphql.tools.GraphQLRootResolver;
 import com.howtographql.hackernews.AuthContext;
-import com.howtographql.hackernews.model.AuthData;
-import com.howtographql.hackernews.model.Link;
-import com.howtographql.hackernews.model.SigninPayload;
-import com.howtographql.hackernews.model.User;
+import com.howtographql.hackernews.model.*;
 import com.howtographql.hackernews.repositories.LinkRepository;
 import com.howtographql.hackernews.repositories.UserRepository;
+import com.howtographql.hackernews.repositories.VoteRepository;
 import graphql.GraphQLException;
 import graphql.schema.DataFetchingEnvironment;
+
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 public class Mutation implements GraphQLRootResolver {
 
@@ -17,9 +19,14 @@ public class Mutation implements GraphQLRootResolver {
 
     private final UserRepository userRepository;
 
-    public Mutation(LinkRepository linkRepository, UserRepository userRepository) {
+    private final VoteRepository voteRepository;
+
+    public Mutation(LinkRepository linkRepository,
+                    UserRepository userRepository,
+                    VoteRepository voteRepository) {
         this.linkRepository = linkRepository;
         this.userRepository = userRepository;
+        this.voteRepository = voteRepository;
     }
 
 
@@ -43,6 +50,13 @@ public class Mutation implements GraphQLRootResolver {
             return new SigninPayload(user.getId(), user);
         }
         throw new GraphQLException("Invalid credentials");
+    }
+
+
+    public Vote createVote(String linkId, String userId) {
+        ZonedDateTime now = Instant.now().atZone(ZoneOffset.UTC);
+        Vote vote = new Vote(now, linkId, userId);
+        return voteRepository.saveVote(vote);
     }
 
 }

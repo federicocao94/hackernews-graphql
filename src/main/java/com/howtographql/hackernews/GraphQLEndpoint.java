@@ -1,11 +1,14 @@
 package com.howtographql.hackernews;
 
 import com.coxautodev.graphql.tools.SchemaParser;
+import com.howtographql.hackernews.model.Scalars;
 import com.howtographql.hackernews.model.User;
 import com.howtographql.hackernews.repositories.LinkRepository;
 import com.howtographql.hackernews.repositories.UserRepository;
+import com.howtographql.hackernews.repositories.VoteRepository;
 import com.howtographql.hackernews.resolvers.LinkResolver;
 import com.howtographql.hackernews.resolvers.SigninResolver;
+import com.howtographql.hackernews.resolvers.VoteResolver;
 import com.howtographql.hackernews.resolvers.mutations.Mutation;
 import com.howtographql.hackernews.resolvers.queries.Query;
 import com.mongodb.MongoClient;
@@ -26,12 +29,15 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
 
     private static final UserRepository userRepository;
 
+    private static final VoteRepository voteRepository;
+
     static {
         //Change to `new MongoClient("<host>:<port>")`
         //if you don't have Mongo running locally on port 27017
         MongoDatabase mongo = new MongoClient().getDatabase("hackernews");
         linkRepository = new LinkRepository(mongo.getCollection("links"));
         userRepository = new UserRepository(mongo.getCollection("users"));
+        voteRepository = new VoteRepository(mongo.getCollection("votes"));
     }
 
     public GraphQLEndpoint() {
@@ -43,9 +49,11 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
                 .file("schema.graphqls")
                 .resolvers(
                         new Query(linkRepository),
-                        new Mutation(linkRepository, userRepository),
+                        new Mutation(linkRepository, userRepository, voteRepository),
                         new SigninResolver(),
-                        new LinkResolver(userRepository))
+                        new LinkResolver(userRepository),
+                        new VoteResolver(linkRepository, userRepository))
+                .scalars(Scalars.dateTime)
                 .build()
                 .makeExecutableSchema();
     }

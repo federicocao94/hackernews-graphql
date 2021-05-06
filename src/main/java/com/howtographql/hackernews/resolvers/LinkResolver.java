@@ -3,7 +3,6 @@ package com.howtographql.hackernews.resolvers;
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import com.howtographql.hackernews.model.Link;
 import com.howtographql.hackernews.model.User;
-import com.howtographql.hackernews.repositories.LinkRepository;
 import com.howtographql.hackernews.repositories.UserRepository;
 
 public class LinkResolver implements GraphQLResolver<Link> {
