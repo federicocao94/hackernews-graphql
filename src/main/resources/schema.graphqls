@@ -37,7 +37,7 @@ input LinkFIlter {
 }
 
 type Query {
-    allLinks(filter: LinkFIlter): [Link]
+    allLinks(filter: LinkFIlter, skip: Int = 0, first: Int = 0): [Link]
 }
 
 type Mutation {

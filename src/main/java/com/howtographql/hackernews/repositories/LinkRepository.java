@@ -2,6 +2,7 @@ package com.howtographql.hackernews.repositories;
 
 import com.howtographql.hackernews.model.Link;
 import com.howtographql.hackernews.model.LinkFilter;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -27,20 +28,19 @@ public class LinkRepository {
     }
 
 
-    public List<Link> getAllLinks(LinkFilter filter) {
-        Bson mongoFIlter = buildFilter(filter);
+    public List<Link> getAllLinks(LinkFilter filter, int skip, int first) {
+
+        Optional<Bson> mongoFilter = Optional.ofNullable(filter).map(this::buildFilter);
+        //if mongoFIlter != null -> apply filter, else -> find all
+        FindIterable<Document> documents = mongoFilter.map(links::find).orElseGet(links::find);
 
         List<Link> allLinks = new ArrayList<>();
-        if(mongoFIlter == null) {
-            for (Document doc : links.find()) {
-                allLinks.add(link(doc));
-            }
-        } else {
-            for (Document doc : links.find(mongoFIlter)) {
-                allLinks.add(link(doc));
-            }
+        for (Document doc : documents.skip(skip).limit(first)) {
+            allLinks.add(link(doc));
         }
+
         return allLinks;
+
     }
 
 
