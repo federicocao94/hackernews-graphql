@@ -1,14 +1,17 @@
 package com.howtographql.hackernews.repositories;
 
 import com.howtographql.hackernews.model.Link;
+import com.howtographql.hackernews.model.LinkFilter;
 import com.mongodb.client.MongoCollection;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 
 public class LinkRepository {
 
@@ -24,12 +27,45 @@ public class LinkRepository {
     }
 
 
-    public List<Link> getAllLinks() {
+    public List<Link> getAllLinks(LinkFilter filter) {
+        Bson mongoFIlter = buildFilter(filter);
+
         List<Link> allLinks = new ArrayList<>();
-        for(Document doc : links.find()) {
-            allLinks.add(link(doc));
+        if(mongoFIlter == null) {
+            for (Document doc : links.find()) {
+                allLinks.add(link(doc));
+            }
+        } else {
+            for (Document doc : links.find(mongoFIlter)) {
+                allLinks.add(link(doc));
+            }
         }
         return allLinks;
+    }
+
+
+    private Bson buildFilter(LinkFilter filter) {
+        String descriptionPattern = filter.getDescriptionContains();
+        String urlPattern = filter.getUrlContains();
+
+        Bson descrCondition = null;
+        Bson urlCondition = null;
+
+        if(descriptionPattern != null && !descriptionPattern.isEmpty()) {
+            descrCondition = regex("description",
+                    ".*" + descriptionPattern + ".*", "i");
+        }
+
+        if(urlPattern != null && !urlPattern.isEmpty()) {
+            urlCondition = regex("url",
+                    ".*" + urlPattern + ".*", "i");
+        }
+
+        if(descrCondition != null && urlCondition != null) {
+            return and(descrCondition, urlCondition);
+        }
+
+        return (descrCondition != null) ? descrCondition : urlCondition;
     }
 
 

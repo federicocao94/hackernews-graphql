@@ -2,6 +2,7 @@ package com.howtographql.hackernews.resolvers.queries;
 
 import com.coxautodev.graphql.tools.GraphQLRootResolver;
 import com.howtographql.hackernews.model.Link;
+import com.howtographql.hackernews.model.LinkFilter;
 import com.howtographql.hackernews.repositories.LinkRepository;
 
 import java.util.List;
@@ -14,8 +15,8 @@ public class Query implements GraphQLRootResolver {
         this.linkRepository = linkRepository;
     }
 
-    public List<Link> allLinks() {
-        return  linkRepository.getAllLinks();
+    public List<Link> allLinks(LinkFilter filter) {
+        return  linkRepository.getAllLinks(filter);
     }
 
 }

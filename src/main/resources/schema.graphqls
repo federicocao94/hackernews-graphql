@@ -31,8 +31,13 @@ type Vote {
 
 scalar DateTime
 
+input LinkFIlter {
+    description_contains: String
+    url_contains: String
+}
+
 type Query {
-    allLinks: [Link]
+    allLinks(filter: LinkFIlter): [Link]
 }
 
 type Mutation {
