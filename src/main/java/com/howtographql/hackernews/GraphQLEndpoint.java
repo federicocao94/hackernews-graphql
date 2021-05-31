@@ -16,8 +16,10 @@ import com.mongodb.client.MongoDatabase;
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.idl.SchemaPrinter;
 import graphql.servlet.GraphQLContext;
 import graphql.servlet.SimpleGraphQLServlet;
+import io.leangen.graphql.GraphQLSchemaGenerator;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -48,19 +50,27 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
         super(buildSchema());
     }
 
+
     private static GraphQLSchema buildSchema() {
-        return  SchemaParser.newParser()
-                .file("schema.graphqls")
-                .resolvers(
-                        new Query(linkRepository),
-                        new Mutation(linkRepository, userRepository, voteRepository),
-                        new SigninResolver(),
-                        new LinkResolver(userRepository),
-                        new VoteResolver(linkRepository, userRepository))
-                .scalars(Scalars.dateTime)
-                .build()
-                .makeExecutableSchema();
+
+        Query query = new Query(linkRepository);
+
+        Mutation mutation = new Mutation(linkRepository, userRepository, voteRepository);
+
+        LinkResolver linkResolver = new LinkResolver(userRepository);
+        SigninResolver signinResolver = new SigninResolver();
+        VoteResolver voteResolver = new VoteResolver(linkRepository, userRepository);
+
+        return new GraphQLSchemaGenerator()
+                .withOperationsFromSingletons(query,
+                        linkResolver,
+                        signinResolver,
+                        voteResolver,
+                        mutation)
+                .generate();
+
     }
+
 
     @Override
     protected GraphQLContext createContext(Optional<HttpServletRequest> request,

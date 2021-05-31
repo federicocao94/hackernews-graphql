@@ -17,6 +17,7 @@
       <scope>test</scope>
     </dependency>
 
+
     <dependency>
       <groupId>com.graphql-java</groupId>
       <artifactId>graphql-java</artifactId>
@@ -44,6 +45,12 @@
       <artifactId>mongodb-driver</artifactId>
       <version>3.4.2</version>
     </dependency>
+
+    <dependency>
+      <groupId>io.leangen.graphql</groupId>
+      <artifactId>spqr</artifactId>
+      <version>0.9.4</version> <!-- Following versions have errors with jetty -->
+    </dependency>
   </dependencies>
 
   <build>
@@ -62,6 +69,9 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
 

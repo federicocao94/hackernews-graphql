@@ -8,6 +8,9 @@ import com.howtographql.hackernews.repositories.UserRepository;
 import com.howtographql.hackernews.repositories.VoteRepository;
 import graphql.GraphQLException;
 import graphql.schema.DataFetchingEnvironment;
+import io.leangen.graphql.annotations.GraphQLArgument;
+import io.leangen.graphql.annotations.GraphQLMutation;
+import io.leangen.graphql.annotations.GraphQLRootContext;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -30,20 +33,22 @@ public class Mutation implements GraphQLRootResolver {
     }
 
 
-    public Link createLink(String url, String description, DataFetchingEnvironment env) {
-        AuthContext context = env.getContext();
+    @GraphQLMutation
+    public Link createLink(String url, String description, @GraphQLRootContext AuthContext context) {
         Link newLink = new Link(null, url, description, context.getUser().getId());
 
         return linkRepository.saveLink(newLink);
     }
 
 
-    public User createUser(String name, AuthData auth) {
+    @GraphQLMutation
+    public User createUser(String name, @GraphQLArgument(name = "authProvider") AuthData auth) {
         User newUser = new User(name, auth.getEmail(), auth.getPassword());
         return userRepository.saveUser(newUser);
     }
 
 
+    @GraphQLMutation
     public SigninPayload signinUser(AuthData auth) {
         User user = userRepository.findByEmail(auth.getEmail());
         if(user.getPassword().equals(auth.getPassword())) {
@@ -53,6 +58,7 @@ public class Mutation implements GraphQLRootResolver {
     }
 
 
+    @GraphQLMutation
     public Vote createVote(String linkId, String userId) {
         ZonedDateTime now = Instant.now().atZone(ZoneOffset.UTC);
         Vote vote = new Vote(now, linkId, userId);

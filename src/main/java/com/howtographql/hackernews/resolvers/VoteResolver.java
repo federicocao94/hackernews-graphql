@@ -6,8 +6,10 @@ import com.howtographql.hackernews.model.User;
 import com.howtographql.hackernews.model.Vote;
 import com.howtographql.hackernews.repositories.LinkRepository;
 import com.howtographql.hackernews.repositories.UserRepository;
+import io.leangen.graphql.annotations.GraphQLContext;
+import io.leangen.graphql.annotations.GraphQLQuery;
 
-public class VoteResolver implements GraphQLResolver<Vote> {
+public class VoteResolver {
 
     private final LinkRepository linkRepository;
 
@@ -18,11 +20,13 @@ public class VoteResolver implements GraphQLResolver<Vote> {
         this.userRepository = userRepository;
     }
 
-    public Link link(Vote vote) {
+    @GraphQLQuery(name = "link")
+    public Link link(@GraphQLContext Vote vote) {
         return linkRepository.findById(vote.getLinkId());
     }
 
-    public User user(Vote vote) {
+    @GraphQLQuery(name = "user")
+    public User user(@GraphQLContext Vote vote) {
         return userRepository.findById(vote.getUserId());
     }
 
